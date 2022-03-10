@@ -1,0 +1,111 @@
+.chat_content {
+    flex: 4;
+    display: flex;
+    flex-direction: column;
+    .chat_header {
+        display: flex;
+        align-items: center;
+        height: 8%;
+        padding: 10px;
+        border-bottom: 2px solid lightblue;
+        .friend_item {
+            display: flex;
+            align-items: center;
+
+            &:hover {
+                cursor: pointer;
+            }
+
+            .user_avatar {
+                height: 100%;
+            }
+            .friend_name {
+                margin-left: 20px;
+            }
+        }
+    }
+    .chat_body {
+        height: 80%;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        .chat_box {
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px;
+            // word-wrap: break-word;
+            white-space: pre-wrap;
+            user-select: text;
+
+            max-width: 50%;
+            background-color: #c8deff;
+        }
+        .friend_chat {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+        }
+        .my_chat {
+            display: flex;
+            align-items: center;
+            flex-direction: row-reverse;
+            margin-right: 20px;
+        }
+    }
+    .chat_footer {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        max-height: 10%;
+        border-top: 2px solid lightblue;
+        .chat_input {
+            margin-left: 10px;
+            width: 90%;
+
+            textarea {
+                overflow-y: hidden;
+                width: 85%;
+                margin-bottom: 10px;
+                resize: none;
+                border: none;
+                font-size: 1.1rem;
+
+                font-family: Segoe UI, SegoeuiPc, San Francisco, Helvetica Neue,
+                    Helvetica, Lucida Grande, Roboto, Ubuntu, Tahoma,
+                    Microsoft Sans Serif, Arial, sans-serif;
+                &:focus {
+                    outline: none;
+                }
+            }
+        }
+        .picker_icon {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+        }
+        .select_icon {
+            width: 30px;
+            margin-left: -50px;
+            margin-right: 20px;
+            position: relative;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+        .send_icon {
+            font-size: 2.2rem;
+            color: blue;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+        .string_send {
+            color: blue;
+            font-weight: 700;
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+}

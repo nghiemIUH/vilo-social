@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     'chat',
+    'user'
 ]
 
 MIDDLEWARE = [
@@ -98,7 +99,7 @@ DATABASES = {
     }
 }
 
-
+AUTH_USER_MODEL = 'user.CustomUser'
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -154,9 +155,12 @@ REST_FRAMEWORK = {
     ),  #
 }
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=2),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': False,
     'ALGORITHM': 'HS256',

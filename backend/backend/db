@@ -1,0 +1,22 @@
+User
+    - username
+    - firstname
+    - lastname
+    - password
+    - email
+    - avatar
+
+Friend
+    - userFirst
+    - userSecond
+    - type
+    - chatID
+
+ChatContent
+    - User
+    - content
+    - date
+
+MessagePrivate
+    - ChatContent <many to many field>
+    - chatID <primary key>

@@ -1,0 +1,51 @@
+.chat {
+    flex: 5;
+    display: flex;
+    flex-direction: row;
+    max-height: 100vh;
+
+    .friend {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        border: 2px solid lightblue;
+        border-top: none;
+
+        .search_friend {
+            flex: 0.5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 5px;
+        }
+        .friend_chatted {
+            flex: 5;
+            .friend_item {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                margin: 15px 10px;
+                border-radius: 10px;
+                &:hover {
+                    cursor: pointer;
+                    background-color: #f5f6f7;
+                }
+                .user_avatar {
+                    max-width: 4.5vw;
+                    height: auto;
+                }
+                .friend_name {
+                    margin-left: 10px;
+                    font-size: 1.3vw;
+                    font-family: Segoe UI, SegoeuiPc, San Francisco,
+                        Helvetica Neue, Helvetica, Lucida Grande, Roboto, Ubuntu,
+                        Tahoma, Microsoft Sans Serif, Arial, sans-serif;
+                }
+            }
+        }
+    }
+
+    .chat_content {
+        flex: 4;
+    }
+}
