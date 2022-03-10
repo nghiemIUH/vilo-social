@@ -11,7 +11,3 @@ class ChatContent(models.Model):
     data = models.DateTimeField(default=datetime.now, blank=True)
     chatID = models.ForeignKey(
         UserRelationship, to_field='chatID', on_delete=models.CASCADE)
-
-
-class TestDB(models.Model):
-    test = models.TextField()

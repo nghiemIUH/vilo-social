@@ -1,5 +1,4 @@
 from . import models
-from email import header
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework import status
 from rest_framework.response import Response
@@ -7,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.db.models import Q
+import json
 
 #
 from .serializers import ProfileSerializer, FriendSerializer
@@ -33,7 +33,7 @@ def login(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def signin(request):
+def signup(request):
     data = request.data
     if User.objects.filter(username=data['username']).exists():
         return Response(data='Username exist', status=status.HTTP_400_BAD_REQUEST)

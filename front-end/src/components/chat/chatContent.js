@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, {
+    useState,
+    useEffect,
+    useRef,
+    useContext,
+    useCallback,
+} from "react";
 import clsx from "clsx";
 import style from "./chatContent.module.scss";
 import { styled } from "@mui/material/styles";
@@ -8,6 +14,8 @@ import Picker from "emoji-picker-react";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { url } from "../../utils/constant";
 import AuthContext from "../user/authContext";
+import MyChat from "./myChat";
+import FriendChat from "./friendChat";
 
 function ChatContent({ currentUser }) {
     const [showPickerIcon, setShowPickerIcon] = useState(false);
@@ -15,14 +23,15 @@ function ChatContent({ currentUser }) {
     const [chat, setChat] = useState([]);
     const ws = useRef();
 
-    const closePicker = (e) => {
+    const closePicker = useCallback((e) => {
         if (
             e.path[0] !== document.querySelector("#icon_picker") &&
             e.path[0].className !== "emoji-img"
         ) {
             setShowPickerIcon(false);
         }
-    };
+    }, []);
+
     // send message to socket
     const sendMessage = () => {
         const text = document.querySelector("#chat_input").value;
@@ -80,15 +89,11 @@ function ChatContent({ currentUser }) {
         return () => {
             window.addEventListener("click", closePicker);
         };
-    }, []);
+    }, [closePicker]);
 
     useEffect(() => {
         const element = document.getElementById("chat_body");
         element.scrollTop = element.scrollHeight;
-        return () => {
-            const element = document.getElementById("chat_body");
-            element.scrollTop = element.scrollHeight;
-        };
     }, [chat]);
 
     const pickerIcon = (_event, emoji) => {
@@ -97,6 +102,7 @@ function ChatContent({ currentUser }) {
 
     return (
         <div className={clsx(style.chat_content)}>
+            {console.log("render")}
             <div className={clsx(style.chat_header)}>
                 <div className={clsx(style.friend_item)}>
                     <StyledBadge
@@ -121,27 +127,17 @@ function ChatContent({ currentUser }) {
             <div className={clsx(style.chat_body)} id="chat_body">
                 {chat.map((value, index) => {
                     return value.user === user.id ? (
-                        <div className={clsx(style.my_chat)} key={index}>
-                            <Avatar
-                                alt="Remy Sharp"
-                                src={url + user.avatar}
-                                className={clsx(style.user_avatar)}
-                            />
-                            <span className={clsx(style.chat_box)}>
-                                {value.message}
-                            </span>
-                        </div>
+                        <MyChat
+                            avatar={user.avatar}
+                            message={value.message}
+                            key={index}
+                        />
                     ) : (
-                        <div className={clsx(style.friend_chat)} key={index}>
-                            <Avatar
-                                alt="Remy Sharp"
-                                src={url + currentUser.avatar}
-                                className={clsx(style.user_avatar)}
-                            />
-                            <span className={clsx(style.chat_box)}>
-                                {value.message}
-                            </span>
-                        </div>
+                        <FriendChat
+                            avatar={currentUser.avatar}
+                            message={value.message}
+                            key={index}
+                        />
                     );
                 })}
             </div>

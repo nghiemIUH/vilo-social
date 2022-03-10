@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { url } from "../../utils/constant";
-// import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -46,11 +45,31 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    let signupUser = async (e, input_file) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append("username", e.target.username.value);
+        formData.append("password", e.target.password.value);
+        formData.append("email", e.target.email.value);
+        formData.append("first_name", e.target.first_name.value);
+        formData.append("last_name", e.target.last_name.value);
+        formData.append("avatar", input_file.files[0]);
+
+        let response = await fetch(url + "/user/signup/", {
+            method: "POST",
+            body: formData,
+        });
+        if (response.status === 201) {
+            navigate("/login");
+        } else {
+            alert("Loi tao tai khoan");
+        }
+    };
+
     let logoutUser = () => {
         setAuthTokens(null);
         setUser(null);
         localStorage.removeItem("authTokens");
-        navigate("/login");
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -91,6 +110,7 @@ export const AuthProvider = ({ children }) => {
         user: user,
         authTokens: authTokens,
         loginUser: loginUser,
+        signupUser: signupUser,
         logoutUser: logoutUser,
     };
 

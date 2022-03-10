@@ -1,0 +1,17 @@
+.my_chat {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    margin-right: 20px;
+
+    .chat_box {
+        padding: 10px;
+        border-radius: 10px;
+        margin: 10px;
+        white-space: pre-wrap;
+        user-select: text;
+
+        max-width: 50%;
+        background-color: #c8deff;
+    }
+}

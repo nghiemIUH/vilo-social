@@ -7,6 +7,7 @@ import Login from "./components/user/login";
 import AuthContext from "./components/user/authContext";
 import PrivateRoute from "./utils/PrivateRoute";
 import ListFriend from "./components/chat/listFriend";
+import Signup from "./components/user/signup";
 
 function App() {
     const { user } = useContext(AuthContext);
@@ -21,6 +22,8 @@ function App() {
                 ></Route>
 
                 <Route path="/login" element={<Login />} exact />
+                <Route path="/signup" element={<Signup />} exact />
+
                 <Route path="/social" element={<Social />} exact />
             </Routes>
         </div>
