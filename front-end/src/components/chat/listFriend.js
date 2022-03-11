@@ -46,7 +46,6 @@ function ListFriend() {
     const [friend, setFriend] = useState([]);
     const { user, authTokens } = useContext(AuthContext);
     const [currentUser, setCurrentUser] = useState();
-
     // show list friends
     useEffect(() => {
         const fetchData = async () => {
@@ -130,6 +129,7 @@ function ListFriend() {
                 <ChatContent
                     currentUser={currentUser}
                     className={clsx(style.chat_content)}
+                    key={currentUser.username}
                 />
             ) : (
                 <div className={clsx(style.chat_content)}></div>
@@ -138,4 +138,4 @@ function ListFriend() {
     );
 }
 
-export default ListFriend;
+export default React.memo(ListFriend);

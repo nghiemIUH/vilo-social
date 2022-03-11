@@ -14,8 +14,10 @@ import FriendChat from "./friendChat";
 function ChatContent({ currentUser }) {
     const [showPickerIcon, setShowPickerIcon] = useState(false);
     const { user } = useContext(AuthContext);
-    const [chat, setChat] = useState([]);
-    const [isTyping, setIstyping] = useState(false);
+    const [chat, setChat] = useState({
+        chat: [],
+        typing: false,
+    });
     const ws = useRef();
     const text_input = useRef();
 
@@ -39,13 +41,13 @@ function ChatContent({ currentUser }) {
                 user_id: user.id,
             })
         );
-        setChat([
-            ...chat,
-            {
-                user_id: user.id,
-                message: text,
-            },
-        ]);
+
+        setChat((prev) => {
+            return {
+                ...prev,
+                chat: [...prev.chat, { message: text, user_id: user.id }],
+            };
+        });
     };
 
     // typing
@@ -83,11 +85,23 @@ function ChatContent({ currentUser }) {
         ws.current.onmessage = (e) => {
             const data = JSON.parse(e.data);
             if (data.type === "chat") {
-                setChat([...chat, data]);
+                setChat((prev) => {
+                    return {
+                        ...prev,
+                        chat: [...prev.chat, data],
+                        typing: false,
+                    };
+                });
             } else if (data.type === "start_typing") {
-                if (data.user_id !== user.id) setIstyping(true);
+                if (data.user_id !== user.id)
+                    setChat((prev) => {
+                        return { ...prev, typing: true };
+                    });
             } else if (data.type === "end_typing") {
-                if (data.user_id !== user.id) setIstyping(false);
+                if (data.user_id !== user.id)
+                    setChat((prev) => {
+                        return { ...prev, typing: false };
+                    });
             }
         };
 
@@ -106,7 +120,7 @@ function ChatContent({ currentUser }) {
                 document.querySelector("#send").click();
             }
         });
-    }, []);
+    }, [user.id]);
 
     // close icon picker
     useEffect(() => {
@@ -127,7 +141,7 @@ function ChatContent({ currentUser }) {
 
     return (
         <div className={clsx(style.chat_content)}>
-            {console.log(currentUser.username)}
+            {}
             <div className={clsx(style.chat_header)}>
                 <div className={clsx(style.friend_item)}>
                     <StyledBadge
@@ -150,8 +164,7 @@ function ChatContent({ currentUser }) {
                 </div>
             </div>
             <div className={clsx(style.chat_body)} id="chat_body">
-                {chat.map((value, index) => {
-                    console.log(value);
+                {chat.chat.map((value, index) => {
                     return value.user_id === user.id ? (
                         <MyChat
                             avatar={user.avatar}
@@ -170,7 +183,7 @@ function ChatContent({ currentUser }) {
 
             {/* chat footer */}
             <div className={clsx(style.chat_footer)}>
-                {isTyping ? (
+                {chat.typing ? (
                     <div className={clsx(style.typing)}>
                         {currentUser.first_name +
                             " " +
