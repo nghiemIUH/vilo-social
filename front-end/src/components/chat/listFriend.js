@@ -101,6 +101,13 @@ function ListFriend() {
                                 onClick={() => {
                                     setCurrentUser(value);
                                 }}
+                                style={{
+                                    backgroundColor:
+                                        currentUser &&
+                                        value.id === currentUser.id
+                                            ? "#e5efff"
+                                            : "#fff",
+                                }}
                             >
                                 <StyledBadge
                                     overlap="circular"

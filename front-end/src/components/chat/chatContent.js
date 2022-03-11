@@ -4,15 +4,14 @@ import style from "./chatContent.module.scss";
 import { styled } from "@mui/material/styles";
 import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
-import Picker from "emoji-picker-react";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { url } from "../../utils/constant";
 import AuthContext from "../user/authContext";
 import MyChat from "./myChat";
 import FriendChat from "./friendChat";
+import { EmojiButton } from "@joeattardi/emoji-button";
 
 function ChatContent({ currentUser }) {
-    const [showPickerIcon, setShowPickerIcon] = useState(false);
     const { user } = useContext(AuthContext);
     const [chat, setChat] = useState({
         chat: [],
@@ -21,18 +20,10 @@ function ChatContent({ currentUser }) {
     const ws = useRef();
     const text_input = useRef();
 
-    const closePicker = (e) => {
-        if (
-            e.path[0] !== document.querySelector("#icon_picker") &&
-            e.path[0].className !== "emoji-img"
-        ) {
-            setShowPickerIcon(false);
-        }
-    };
-
     // send message to socket
     const sendMessage = () => {
         const text = document.querySelector("#chat_input").value;
+        if (text.trim() === "") return;
         document.querySelector("#chat_input").value = "";
         ws.current.send(
             JSON.stringify({
@@ -70,6 +61,18 @@ function ChatContent({ currentUser }) {
     };
 
     useEffect(() => {
+        const picker = new EmojiButton({
+            autoHide: false,
+            emojiSize: "1.5rem",
+            showAnimation: false,
+        });
+        const trigger = document.querySelector("#icon_picker");
+
+        picker.on("emoji", (selection) => {
+            document.querySelector("#chat_input").value += selection.emoji;
+        });
+
+        trigger.addEventListener("click", () => picker.togglePicker(trigger));
         text_input.current.focus();
     }, []);
 
@@ -122,22 +125,10 @@ function ChatContent({ currentUser }) {
         });
     }, [user.id]);
 
-    // close icon picker
-    useEffect(() => {
-        window.addEventListener("click", closePicker);
-        return () => {
-            window.addEventListener("click", closePicker);
-        };
-    }, []);
-
     useEffect(() => {
         const element = document.getElementById("chat_body");
         element.scrollTop = element.scrollHeight;
     }, [chat]);
-
-    const pickerIcon = (_event, emoji) => {
-        document.querySelector("#chat_input").value += emoji.emoji;
-    };
 
     return (
         <div className={clsx(style.chat_content)}>
@@ -208,17 +199,8 @@ function ChatContent({ currentUser }) {
                     alt=""
                     className={clsx(style.select_icon)}
                     id="icon_picker"
-                    onClick={() => {
-                        setShowPickerIcon((show) => !show);
-                    }}
                 />
 
-                <div
-                    className={clsx(style.picker_icon)}
-                    style={{ display: showPickerIcon ? "block" : "none" }}
-                >
-                    <Picker onEmojiClick={pickerIcon} disableSearchBar={true} />
-                </div>
                 <div
                     className={clsx(style.string_send)}
                     id="send"

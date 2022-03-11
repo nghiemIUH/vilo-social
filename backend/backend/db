@@ -20,3 +20,11 @@ ChatContent
 MessagePrivate
     - ChatContent <many to many field>
     - chatID <primary key>
+
+
+chức năng thêm:
+    - video chat
+    - gửi ảnh, file
+ý tưởng phiên bản pro:
+    - bật tính năng chat với người nước ngoài sẽ tự động dịch sang ngôn ngữ của họ
+    - 

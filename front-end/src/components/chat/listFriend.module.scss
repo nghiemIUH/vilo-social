@@ -24,11 +24,12 @@
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                margin: 15px 10px;
+                margin: 0 10px;
                 border-radius: 10px;
+                padding: 10px 0 10px 3px;
                 &:hover {
                     cursor: pointer;
-                    background-color: #f5f6f7;
+                    background-color: #e5efff;
                 }
                 .user_avatar {
                     max-width: 4.5vw;
