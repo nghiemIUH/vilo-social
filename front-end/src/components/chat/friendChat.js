@@ -17,4 +17,5 @@ function FriendChat({ avatar, message }) {
     );
 }
 
-export default React.memo(FriendChat);
+// export default React.memo(FriendChat);
+export default FriendChat;

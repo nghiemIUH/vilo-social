@@ -1,10 +1,4 @@
-import React, {
-    useState,
-    useEffect,
-    useRef,
-    useContext,
-    useCallback,
-} from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import clsx from "clsx";
 import style from "./chatContent.module.scss";
 import { styled } from "@mui/material/styles";
@@ -21,16 +15,18 @@ function ChatContent({ currentUser }) {
     const [showPickerIcon, setShowPickerIcon] = useState(false);
     const { user } = useContext(AuthContext);
     const [chat, setChat] = useState([]);
+    const [isTyping, setIstyping] = useState(false);
     const ws = useRef();
+    const text_input = useRef();
 
-    const closePicker = useCallback((e) => {
+    const closePicker = (e) => {
         if (
             e.path[0] !== document.querySelector("#icon_picker") &&
             e.path[0].className !== "emoji-img"
         ) {
             setShowPickerIcon(false);
         }
-    }, []);
+    };
 
     // send message to socket
     const sendMessage = () => {
@@ -38,24 +34,47 @@ function ChatContent({ currentUser }) {
         document.querySelector("#chat_input").value = "";
         ws.current.send(
             JSON.stringify({
+                type: "chat",
                 message: text,
+                user_id: user.id,
             })
         );
         setChat([
             ...chat,
             {
-                user: user.id,
+                user_id: user.id,
                 message: text,
             },
         ]);
     };
 
+    // typing
+    const checkTyping = (e) => {
+        if (e.target.value.length !== 0) {
+            ws.current.send(
+                JSON.stringify({
+                    type: "start_typing",
+                    user_id: user.id,
+                })
+            );
+        } else {
+            ws.current.send(
+                JSON.stringify({
+                    type: "end_typing",
+                    user_id: user.id,
+                })
+            );
+        }
+    };
+
+    useEffect(() => {
+        text_input.current.focus();
+    }, []);
+
     // connect websocket
     useEffect(() => {
         ws.current = new WebSocket(
-            `ws://${url.split("//")[1]}/ws/chat/${currentUser.chatID}/?id=${
-                user.id
-            }`
+            `ws://${url.split("//")[1]}/ws/chat/${currentUser.chatID}/`
         );
         ws.current.onopen = () => {
             console.log("connect ");
@@ -63,7 +82,13 @@ function ChatContent({ currentUser }) {
 
         ws.current.onmessage = (e) => {
             const data = JSON.parse(e.data);
-            setChat([...chat, data]);
+            if (data.type === "chat") {
+                setChat([...chat, data]);
+            } else if (data.type === "start_typing") {
+                if (data.user_id !== user.id) setIstyping(true);
+            } else if (data.type === "end_typing") {
+                if (data.user_id !== user.id) setIstyping(false);
+            }
         };
 
         // close
@@ -89,7 +114,7 @@ function ChatContent({ currentUser }) {
         return () => {
             window.addEventListener("click", closePicker);
         };
-    }, [closePicker]);
+    }, []);
 
     useEffect(() => {
         const element = document.getElementById("chat_body");
@@ -102,7 +127,7 @@ function ChatContent({ currentUser }) {
 
     return (
         <div className={clsx(style.chat_content)}>
-            {console.log("render")}
+            {console.log(currentUser.username)}
             <div className={clsx(style.chat_header)}>
                 <div className={clsx(style.friend_item)}>
                     <StyledBadge
@@ -126,7 +151,8 @@ function ChatContent({ currentUser }) {
             </div>
             <div className={clsx(style.chat_body)} id="chat_body">
                 {chat.map((value, index) => {
-                    return value.user === user.id ? (
+                    console.log(value);
+                    return value.user_id === user.id ? (
                         <MyChat
                             avatar={user.avatar}
                             message={value.message}
@@ -144,11 +170,23 @@ function ChatContent({ currentUser }) {
 
             {/* chat footer */}
             <div className={clsx(style.chat_footer)}>
+                {isTyping ? (
+                    <div className={clsx(style.typing)}>
+                        {currentUser.first_name +
+                            " " +
+                            currentUser.last_name +
+                            " đang soạn tin nhắn ..."}
+                    </div>
+                ) : (
+                    ""
+                )}
                 <div className={clsx(style.chat_input)}>
                     <TextareaAutosize
                         placeholder="Input text..."
                         id="chat_input"
                         maxRows={2}
+                        ref={text_input}
+                        onChange={checkTyping}
                     />
                 </div>
 
@@ -210,3 +248,4 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 export default React.memo(ChatContent);
+// export default ChatContent;

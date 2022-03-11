@@ -78,7 +78,7 @@ function ListFriend() {
 
             setFriend(listFriend);
         });
-        return () => fetchData();
+        return () => fetchData;
     }, [authTokens.access, user.username]);
     return (
         <div className={clsx(style.chat)}>

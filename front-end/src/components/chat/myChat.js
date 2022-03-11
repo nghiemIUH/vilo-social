@@ -17,4 +17,5 @@ function MyChat({ avatar, message }) {
     );
 }
 
-export default React.memo(MyChat);
+// export default React.memo(MyChat);
+export default MyChat;
