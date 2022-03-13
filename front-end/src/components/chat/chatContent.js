@@ -10,15 +10,43 @@ import AuthContext from "../user/authContext";
 import MyChat from "./myChat";
 import FriendChat from "./friendChat";
 import { EmojiButton } from "@joeattardi/emoji-button";
+import AddIcCallOutlinedIcon from "@mui/icons-material/AddIcCallOutlined";
+import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
+import axios from "axios";
 
 function ChatContent({ currentUser }) {
-    const { user } = useContext(AuthContext);
+    const { user, authTokens } = useContext(AuthContext);
     const [chat, setChat] = useState({
         chat: [],
         typing: false,
+        page: 1,
     });
     const ws = useRef();
     const text_input = useRef();
+    // load old chat
+    const loadOldChat = async (props) => {
+        console.log(props);
+        const formData = new FormData();
+        formData.append("chatID", currentUser.chatID);
+        formData.append("page", chat.page + 1);
+        await axios({
+            url: url + "/chat/get-chat-page/",
+            method: "POST",
+            data: formData,
+        }).then((response) => {
+            const data = response.data;
+            if (response.status === 200) {
+                setChat((prev) => {
+                    // console.log(prev.page);
+                    return {
+                        ...prev,
+                        chat: [...data, ...prev.chat],
+                        page: prev.page + 1,
+                    };
+                });
+            }
+        });
+    };
 
     // send message to socket
     const sendMessage = () => {
@@ -32,13 +60,6 @@ function ChatContent({ currentUser }) {
                 user_id: user.id,
             })
         );
-
-        setChat((prev) => {
-            return {
-                ...prev,
-                chat: [...prev.chat, { message: text, user_id: user.id }],
-            };
-        });
     };
 
     // typing
@@ -59,6 +80,28 @@ function ChatContent({ currentUser }) {
             );
         }
     };
+
+    /**
+     * get chat
+     */
+    useEffect(() => {
+        const formData = new FormData();
+        formData.append("chatID", currentUser.chatID);
+        formData.append("page", 1);
+        const getChat = async () => {
+            const response = await axios({
+                url: url + "/chat/get-chat-page/",
+                method: "POST",
+                data: formData,
+            });
+            return response;
+        };
+        getChat().then((response) => {
+            setChat((prev) => {
+                return { ...prev, chat: response.data };
+            });
+        });
+    }, [authTokens.access, currentUser.chatID]);
 
     useEffect(() => {
         const picker = new EmojiButton({
@@ -113,7 +156,7 @@ function ChatContent({ currentUser }) {
         return () => {
             wsCurrent.close();
         };
-    }, [chat, currentUser.chatID, user.id]);
+    }, [currentUser.chatID, user.id]);
 
     useEffect(() => {
         const element = document.querySelector("#chat_input");
@@ -130,9 +173,22 @@ function ChatContent({ currentUser }) {
         element.scrollTop = element.scrollHeight;
     }, [chat]);
 
+    useEffect(() => {
+        const scroll = document.querySelector("#chat_body");
+        console.log(chat);
+        scroll.addEventListener("scroll", () => {
+            if (scroll.scrollTop === 0) loadOldChat(chat);
+        });
+
+        return () => {
+            const scroll = document.querySelector("#chat_body");
+            scroll.removeEventListener("scroll", () => loadOldChat());
+        };
+    }, []);
+    console.log(chat);
+
     return (
         <div className={clsx(style.chat_content)}>
-            {}
             <div className={clsx(style.chat_header)}>
                 <div className={clsx(style.friend_item)}>
                     <StyledBadge
@@ -152,6 +208,10 @@ function ChatContent({ currentUser }) {
                     <div
                         className={clsx(style.friend_name)}
                     >{`${currentUser.first_name} ${currentUser.last_name}`}</div>
+                </div>
+                <div className={clsx(style.call)}>
+                    <AddIcCallOutlinedIcon fontSize="inderhit" />
+                    <VideocamOutlinedIcon fontSize="inderhit" />
                 </div>
             </div>
             <div className={clsx(style.chat_body)} id="chat_body">

@@ -5,9 +5,21 @@
     .chat_header {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         height: 8%;
         padding: 10px;
         border-bottom: 2px solid lightblue;
+        .call {
+            margin-right: 2vw;
+            svg {
+                margin: 0 1.5vw;
+                color: blue;
+                font-size: 1.8rem;
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+        }
         .friend_item {
             display: flex;
             align-items: center;
@@ -59,7 +71,7 @@
                 margin: 10px;
                 white-space: pre-wrap;
                 user-select: text;
-
+                word-wrap: break-word;
                 max-width: 50%;
                 background-color: #c8deff;
             }

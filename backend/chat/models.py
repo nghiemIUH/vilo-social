@@ -7,7 +7,9 @@ from user.models import UserRelationship
 
 class ChatContent(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    content = models.TextField()
-    data = models.DateTimeField(default=datetime.now, blank=True)
+    message = models.TextField()
+    date = models.DateTimeField(default=datetime.now, blank=True)
     chatID = models.ForeignKey(
         UserRelationship, to_field='chatID', on_delete=models.CASCADE)
+    type = [('TEXT', 'text'), ('IMAGE', 'image'), ('FILE', 'file')]
+    status = models.CharField(max_length=10, choices=type, default='TEXT')
