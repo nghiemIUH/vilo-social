@@ -41,13 +41,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         user_id = text_data['user_id']
         if text_data['type'] == "chat":
             message = text_data['message']
+            status = text_data['status']
+            await self.save_message(text_data)
             # send message to room group
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'chat_message',
                     'message': message,
-                    'user_id': user_id
+                    'user_id': user_id,
+                    'status': status
                 }
             )
         if text_data['type'] == 'start_typing':
@@ -67,16 +70,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
+        if text_data['type'] == 'chat_file':
+            message = text_data['message']
+            status = text_data['status']
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': message,
+                    'user_id': user_id,
+                    'status': status
+                }
+            )
+
     # Receive message from room group
     async def chat_message(self, event):
         message = event['message']
         user_id = event['user_id']
-        await self.save_message(event)
+        status = event['status']
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'type': 'chat',
             'message': message,
-            'user_id': user_id
+            'user_id': user_id,
+            'status': status
         }))
 
     async def start_typing(self, event):

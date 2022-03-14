@@ -1,17 +1,38 @@
 .my_chat {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     flex-direction: row-reverse;
     margin-right: 20px;
+    margin-top: 10px;
 
     .chat_box {
         padding: 10px;
         border-radius: 10px;
-        margin: 10px;
+        margin-right: 10px;
         white-space: pre-wrap;
         user-select: text;
 
         max-width: 50%;
         background-color: #c8deff;
+        &:hover + .more_icon {
+            display: block;
+            cursor: pointer;
+        }
+    }
+    .chat_img {
+        max-width: 35%;
+        border-radius: 10px;
+        &:hover + .more_icon {
+            display: block;
+            cursor: pointer;
+        }
+    }
+
+    .more_icon {
+        display: none;
+        &:hover {
+            display: block;
+            cursor: pointer;
+        }
     }
 }

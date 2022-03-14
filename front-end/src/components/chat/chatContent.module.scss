@@ -112,23 +112,17 @@
                 }
             }
         }
-        .picker_icon {
-            position: absolute;
-            bottom: 100px;
-            right: 20px;
-        }
         .select_icon {
             width: 30px;
-            margin-left: -50px;
-            margin-right: 20px;
             position: relative;
+            margin-right: 10px;
             &:hover {
                 cursor: pointer;
             }
         }
-        .send_icon {
-            font-size: 2.2rem;
-            color: blue;
+        .attach_file {
+            margin-right: 10px;
+            margin-left: -50px;
             &:hover {
                 cursor: pointer;
             }

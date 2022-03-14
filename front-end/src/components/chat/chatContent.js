@@ -12,6 +12,7 @@ import FriendChat from "./friendChat";
 import { EmojiButton } from "@joeattardi/emoji-button";
 import AddIcCallOutlinedIcon from "@mui/icons-material/AddIcCallOutlined";
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 import axios from "axios";
 
 function ChatContent({ currentUser }) {
@@ -20,44 +21,24 @@ function ChatContent({ currentUser }) {
         chat: [],
         typing: false,
         page: 1,
+        isScroll: true,
     });
     const ws = useRef();
     const text_input = useRef();
-    // load old chat
-    const loadOldChat = async (props) => {
-        console.log(props);
-        const formData = new FormData();
-        formData.append("chatID", currentUser.chatID);
-        formData.append("page", chat.page + 1);
-        await axios({
-            url: url + "/chat/get-chat-page/",
-            method: "POST",
-            data: formData,
-        }).then((response) => {
-            const data = response.data;
-            if (response.status === 200) {
-                setChat((prev) => {
-                    // console.log(prev.page);
-                    return {
-                        ...prev,
-                        chat: [...data, ...prev.chat],
-                        page: prev.page + 1,
-                    };
-                });
-            }
-        });
-    };
+    const chat_body = useRef();
+    const select_file = useRef();
 
     // send message to socket
     const sendMessage = () => {
-        const text = document.querySelector("#chat_input").value;
+        const text = text_input.current.value;
         if (text.trim() === "") return;
-        document.querySelector("#chat_input").value = "";
+        text_input.current.value = "";
         ws.current.send(
             JSON.stringify({
                 type: "chat",
                 message: text,
                 user_id: user.id,
+                status: "TEXT",
             })
         );
     };
@@ -92,6 +73,9 @@ function ChatContent({ currentUser }) {
             const response = await axios({
                 url: url + "/chat/get-chat-page/",
                 method: "POST",
+                headers: {
+                    Authorization: "Bearer " + authTokens.access,
+                },
                 data: formData,
             });
             return response;
@@ -136,6 +120,7 @@ function ChatContent({ currentUser }) {
                         ...prev,
                         chat: [...prev.chat, data],
                         typing: false,
+                        isScroll: true,
                     };
                 });
             } else if (data.type === "start_typing") {
@@ -169,24 +154,67 @@ function ChatContent({ currentUser }) {
     }, [user.id]);
 
     useEffect(() => {
-        const element = document.getElementById("chat_body");
-        element.scrollTop = element.scrollHeight;
+        if (chat.isScroll)
+            chat_body.current.scrollTop = chat_body.current.scrollHeight;
+        else chat_body.current.scrollTop = chat_body.current.scrollHeight / 5;
     }, [chat]);
 
-    useEffect(() => {
-        const scroll = document.querySelector("#chat_body");
-        console.log(chat);
-        scroll.addEventListener("scroll", () => {
-            if (scroll.scrollTop === 0) loadOldChat(chat);
+    const handleScroll = async (e) => {
+        const scroll = e.target;
+        if (scroll.scrollTop === 0) {
+            const formData = new FormData();
+            formData.append("chatID", currentUser.chatID);
+            formData.append("page", chat.page);
+            await axios({
+                url: url + "/chat/get-chat-page/",
+                method: "POST",
+                headers: {
+                    Authorization: "Bearer " + authTokens.access,
+                },
+                data: formData,
+            })
+                .then((response) => {
+                    const data = response.data;
+                    if (response.status === 200) {
+                        setChat((prev) => {
+                            return {
+                                ...prev,
+                                chat: [...data, ...prev.chat],
+                                page: prev.page + 1,
+                                isScroll: false,
+                            };
+                        });
+                    }
+                })
+                .catch((e) => console.log(e));
+        }
+    };
+
+    const handleSendFile = async () => {
+        const formData = new FormData();
+        formData.append("file", select_file.current.files[0]);
+        formData.append("user_id", user.id);
+        formData.append("chatID", currentUser.chatID);
+        await axios({
+            url: url + "/chat/save-file/",
+            method: "POST",
+            headers: {
+                Authorization: "Bearer " + authTokens.access,
+            },
+            data: formData,
+        }).then((response) => {
+            const message = response.data.message;
+            const status = response.data.status;
+            ws.current.send(
+                JSON.stringify({
+                    type: "chat_file",
+                    message: message,
+                    user_id: user.id,
+                    status: status,
+                })
+            );
         });
-
-        return () => {
-            const scroll = document.querySelector("#chat_body");
-            scroll.removeEventListener("scroll", () => loadOldChat());
-        };
-    }, []);
-    console.log(chat);
-
+    };
     return (
         <div className={clsx(style.chat_content)}>
             <div className={clsx(style.chat_header)}>
@@ -214,18 +242,25 @@ function ChatContent({ currentUser }) {
                     <VideocamOutlinedIcon fontSize="inderhit" />
                 </div>
             </div>
-            <div className={clsx(style.chat_body)} id="chat_body">
+            <div
+                className={clsx(style.chat_body)}
+                id="chat_body"
+                ref={chat_body}
+                onScroll={handleScroll}
+            >
                 {chat.chat.map((value, index) => {
                     return value.user_id === user.id ? (
                         <MyChat
                             avatar={user.avatar}
                             message={value.message}
+                            status={value.status}
                             key={index}
                         />
                     ) : (
                         <FriendChat
                             avatar={currentUser.avatar}
                             message={value.message}
+                            status={value.status}
                             key={index}
                         />
                     );
@@ -253,6 +288,20 @@ function ChatContent({ currentUser }) {
                         onChange={checkTyping}
                     />
                 </div>
+                <label
+                    htmlFor="select_file"
+                    className={clsx(style.attach_file)}
+                    title="Attach file"
+                >
+                    <AttachFileIcon />
+                </label>
+                <input
+                    type="file"
+                    id="select_file"
+                    hidden
+                    ref={select_file}
+                    onChange={handleSendFile}
+                />
 
                 <img
                     src="1f600.png"

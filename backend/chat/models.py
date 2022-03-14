@@ -13,3 +13,4 @@ class ChatContent(models.Model):
         UserRelationship, to_field='chatID', on_delete=models.CASCADE)
     type = [('TEXT', 'text'), ('IMAGE', 'image'), ('FILE', 'file')]
     status = models.CharField(max_length=10, choices=type, default='TEXT')
+    isDelete = models.BooleanField(default=False)

@@ -1,16 +1,36 @@
 .friend_chat {
     display: flex;
-    align-items: center;
+    // align-items: center;
+    align-items: flex-end;
     margin-left: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 
     .chat_box {
         padding: 10px;
         border-radius: 10px;
-        margin: 10px;
+        margin-left: 10px;
         white-space: pre-wrap;
         user-select: text;
 
         max-width: 50%;
         background-color: #c8deff;
+    }
+
+    .chat_img {
+        max-width: 35%;
+        margin-left: 5px;
+        border-radius: 10px;
+        &:hover {
+            cursor: pointer;
+        }
+    }
+    .more_icon {
+        // display: none;
+        display: inline-block;
+        &:hover {
+            display: inline-block;
+            cursor: pointer;
+        }
     }
 }

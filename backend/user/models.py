@@ -46,6 +46,9 @@ class UserRelationship(models.Model):
     status = models.CharField(max_length=10, choices=type, default='FRIEND')
     chatID = models.CharField(max_length=10,  unique=True)
 
+    def __str__(self) -> str:
+        return self.userFirst.__str__()+" - "+self.userSecond.__str__()
+
 
 @receiver(models.signals.post_delete, sender=CustomUser)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
